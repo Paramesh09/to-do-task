@@ -1,0 +1,77 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #eff1ff;
+  --color-brand-100: #dadbfb;
+  --color-brand-500: #4566ec;
+  --color-brand-600: #3651d4;
+  --color-brand-900: #253d99;
+
+  --color-danger-50: #ffe8e9;
+  --color-danger-500: #e5484d;
+
+  --color-ink: #1b1d28;
+  --color-muted: #8f92a1;
+  --color-line: #ececf2;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-ink antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* the native date/time pickers look different on every browser,
+     so keep the input text in line with the rest of the form */
+  input[type='date'],
+  input[type='time'] {
+    @apply relative appearance-none;
+  }
+
+  /* we draw our own icon, so stretch the native (invisible) picker button over
+     the whole field - tapping anywhere on it still opens the picker */
+  input[type='date']::-webkit-calendar-picker-indicator,
+  input[type='time']::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+@utility input {
+  @apply w-full rounded-md border border-line bg-white px-4 py-3 text-sm text-ink shadow-[0_1px_6px_rgba(27,29,40,0.05)] outline-none transition placeholder:text-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility animate-sheet {
+  animation: sheet-up 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@utility animate-fade {
+  animation: fade-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
