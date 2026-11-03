@@ -95,20 +95,20 @@ function TaskForm({ task, weekStart, onDone }) {
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Set Date" htmlFor="date" error={errors.date}>
-          <div className="relative">
-            <input id="date" type="date" className="input pr-10" value={values.date} onChange={setField('date')} />
-            <CalendarDays size={18} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted" />
-          </div>
-        </Field>
-        <Field label="Set Time" htmlFor="time" error={errors.time}>
-          <div className="relative">
-            <input id="time" type="time" className="input pr-10" value={values.time} onChange={setField('time')} />
-            <Clock size={18} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted" />
-          </div>
-        </Field>
-      </div>
+      {/* same order as the design: time, then date. The design has Start/Ends times, the brief asks for one */}
+      <Field label="Set Time" htmlFor="time" error={errors.time}>
+        <div className="relative">
+          <input id="time" type="time" className="input pl-11" value={values.time} onChange={setField('time')} />
+          <Clock size={18} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted" />
+        </div>
+      </Field>
+
+      <Field label="Set Date" htmlFor="date" error={errors.date}>
+        <div className="relative">
+          <input id="date" type="date" className="input pr-10" value={values.date} onChange={setField('date')} />
+          <CalendarDays size={18} className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted" />
+        </div>
+      </Field>
 
       <Field label="Priority">
         <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Priority">

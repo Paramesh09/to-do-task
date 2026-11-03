@@ -1,33 +1,43 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Plus, Search } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import ProgressBar from '../components/ProgressBar';
+import TaskItem from '../components/TaskItem';
 import WeekStrip from '../components/WeekStrip';
 import WeekCard from '../components/WeekCard';
 import { useTaskActions } from '../context/TaskActionsContext';
 import { useTasks, useWeeklySummary } from '../hooks/useTasks';
-import { addDays, format, getWeekStart } from '../lib/dates';
+import { addDays, format, getWeekStart, isToday } from '../lib/dates';
 
 export default function Home() {
   const { openCreate } = useTaskActions();
   const { data: weeks, isLoading, isError, error, refetch } = useWeeklySummary();
+  const weeksRef = useRef(null);
 
   const weekStart = getWeekStart();
   const thisWeekKey = weekStart.toISOString();
   // same params as the current week's WeekCard so both share one cached request
-  const { data: thisWeekTasks } = useTasks({
+  const thisWeek = useTasks({
     from: thisWeekKey,
     to: addDays(weekStart, 7).toISOString(),
   });
+  const thisWeekTasks = thisWeek.data;
+  const todayTasks = thisWeekTasks?.filter((task) => isToday(new Date(task.dueAt)));
 
-  const [expanded, setExpanded] = useState(() => new Set([thisWeekKey]));
+  // today's tasks are listed above, so the week cards start closed and open on tap
+  const [expanded, setExpanded] = useState(() => new Set());
   const toggle = (key) =>
     setExpanded((prev) => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
     });
+
+  function viewAll() {
+    setExpanded((prev) => new Set(prev).add(thisWeekKey));
+    weeksRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   const current = weeks?.find((w) => w.weekStart === thisWeekKey);
   const upcoming = weeks?.filter((w) => new Date(w.weekStart) >= weekStart) ?? [];
@@ -63,7 +73,9 @@ export default function Home() {
         <ProgressBar value={current?.completed ?? 0} max={current?.total ?? 0} label="This week's progress" />
       </div>
 
-      <section className="mt-8">
+      <TodayTasks tasks={todayTasks} isLoading={thisWeek.isLoading} isError={thisWeek.isError} onViewAll={viewAll} />
+
+      <section ref={weeksRef} className="mt-8 scroll-mt-6">
         {isLoading && <LoadingWeeks />}
 
         {isError && (
@@ -99,6 +111,46 @@ export default function Home() {
         <Plus size={28} />
       </button>
     </div>
+  );
+}
+
+function TodayTasks({ tasks, isLoading, isError, onViewAll }) {
+  return (
+    <section className="mt-8">
+      <div className="mb-1 flex items-baseline justify-between">
+        <h2 className="font-semibold">Tasks Today</h2>
+        <button
+          type="button"
+          onClick={onViewAll}
+          className="text-sm font-medium text-brand-500 transition hover:text-brand-600"
+        >
+          View All
+        </button>
+      </div>
+
+      {isLoading && (
+        <ul aria-busy="true">
+          {[0, 1].map((i) => (
+            <li key={i} className="flex items-center gap-3 py-4">
+              <div className="size-5 animate-pulse rounded bg-line" />
+              <div className="h-3.5 flex-1 animate-pulse rounded bg-line" />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {isError && <p className="py-4 text-sm text-danger-500">Couldn&apos;t load today&apos;s tasks.</p>}
+
+      {tasks?.length === 0 && <p className="py-6 text-center text-sm text-muted">Nothing due today.</p>}
+
+      {tasks?.length > 0 && (
+        <ul>
+          {tasks.map((task) => (
+            <TaskItem key={task.id} task={task} />
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

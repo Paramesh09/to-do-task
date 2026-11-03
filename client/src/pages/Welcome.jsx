@@ -11,13 +11,14 @@ export default function Welcome() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <div className="relative flex-[1.3] overflow-hidden bg-brand-500">
+      {/* takes whatever the text block doesn't need, about two thirds of a phone screen like the design */}
+      <div className="relative flex-1 overflow-hidden bg-brand-500">
         <span className="absolute -top-14 -right-10 size-36 rounded-full border-[22px] border-white/15" />
         <Zigzag className="absolute top-[22%] left-0 w-28 text-white/15" />
         <Zigzag className="absolute right-0 bottom-[14%] w-28 text-white/15" />
       </div>
 
-      <div className="flex flex-1 flex-col justify-between px-6 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="flex min-h-[35dvh] flex-col justify-between px-6 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <div>
           <h1 className="text-2xl font-semibold">Manage What To Do</h1>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">

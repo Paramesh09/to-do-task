@@ -187,3 +187,19 @@ describe('GET /api/tasks/weeks', () => {
     await request(app).get('/api/tasks/weeks').query({ tz: 'Mars/Olympus' }).expect(400);
   });
 });
+
+describe('CORS', () => {
+  it('allows CLIENT_ORIGIN even when it was set with a trailing slash', async () => {
+    const original = process.env.CLIENT_ORIGIN;
+    process.env.CLIENT_ORIGIN = 'https://todo.example.com/, http://localhost:5173';
+    const corsApp = createApp();
+    if (original === undefined) delete process.env.CLIENT_ORIGIN;
+    else process.env.CLIENT_ORIGIN = original;
+
+    const allowed = await request(corsApp).get('/api/health').set('Origin', 'https://todo.example.com');
+    expect(allowed.headers['access-control-allow-origin']).toBe('https://todo.example.com');
+
+    const blocked = await request(corsApp).get('/api/health').set('Origin', 'https://evil.example.com');
+    expect(blocked.headers['access-control-allow-origin']).toBeUndefined();
+  });
+});
